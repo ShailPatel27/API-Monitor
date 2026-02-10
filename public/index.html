@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Checker</title>
+</head>
+
+<body>
+    <form action="post" action="check"
+        style="text-align: center; margin: 15% 40%; border:2px groove black; padding: 20px; display:inline-block">
+        <label for="api">Enter API: </label>
+        <input type="text" name="api" id="api"> <br> <br>
+        <input type="button" value="Check Status" id="checkbtn">
+        <p id="result"></p>
+    </form>
+
+    <script>
+        document.getElementById("checkbtn").addEventListener("click", async () => {
+            const url = document.getElementById("api").value;
+            const resultEl = document.getElementById("result");
+
+            resultEl.innerText = "Checking...";
+
+            try {
+                const res = await fetch("/check", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await res.json();
+                resultEl.innerText = data.message;
+
+            } catch (err) {
+                resultEl.innerText = "Server error";
+            }
+        });
+    </script>
+</body>
+
+</html>
