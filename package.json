@@ -11,6 +11,7 @@
     "@types/node": "^24.6.2",
     "@types/nodemailer": "^7.0.2",
     "@types/paypal__checkout-server-sdk": "^1.0.8",
+    "concurrently": "^9.2.1",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
@@ -37,10 +38,13 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "nodemon --exec ts-node src/server.ts",
-    "monitor": "node -r ts-node/register src/workers/monitor.worker.ts",
     "retry-mails": "node -r ts-node/register src/workers/emailRetry.worker.ts",
     "build": "tsc",
     "prestart": "npm run build",
-    "lint": "eslint --ext .ts src"
+    "lint": "eslint --ext .ts src",
+    "schedule": "node dist/scheduler.js",
+    "monitor": "node dist/workers/monitor.worker.js",
+    "email-worker": "node dist/workers/email.worker.js",
+    "workers": "node dist/workers/monitor.worker.js & node dist/workers/email.worker.js"
   }
 }

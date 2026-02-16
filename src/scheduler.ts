@@ -1,22 +1,25 @@
-// src/scheduler.ts
+import { monitorQueue } from "./queue/monitor.queue";
 
-import { Queue } from "bullmq";
-import { connection } from "./queue/connection";
+(async () => {
+  const repeatableJobs = await monitorQueue.getRepeatableJobs();
 
-const monitorQueue = new Queue("monitor", { connection });
+  if (repeatableJobs.length === 0) {
+    await monitorQueue.add(
+      "monitor-job",
+      {},
+      {
+        jobId: "monitor-repeat",
+        repeat: {
+          every: 60 * 1000 // ⏱ 1 minute (testing)
+        },
+        removeOnComplete: true
+      }
+    );
 
-async function schedule() {
-  await monitorQueue.add(
-    "run-monitor",
-    {},
-    {
-      repeat: {
-        every: 6 * 60 * 60 * 1000, // every 6 hours
-      },
-    }
-  );
+    console.log("Monitor job scheduled");
+  } else {
+    console.log("Monitor job already scheduled");
+  }
 
-  console.log("Monitor scheduled every 6 hours");
-}
-
-schedule();
+  process.exit(0);
+})();

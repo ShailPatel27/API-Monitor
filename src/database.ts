@@ -1,3 +1,4 @@
+// src/database.ts
 import "dotenv/config";
 import mysql from "mysql2/promise";
 import crypto from "crypto";
@@ -11,12 +12,17 @@ const pool = mysql.createPool({
   connectionLimit: 10,
 });
 
+/* ---------- utils ---------- */
+
 function hashUrl(url: string): string {
   return crypto.createHash("sha256").update(url).digest("hex");
 }
 
+/* ---------- init ---------- */
+
 async function initDatabase() {
   try {
+    // LOGS (UNCHANGED)
     await pool.execute(`
       CREATE TABLE IF NOT EXISTS logs (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -28,12 +34,22 @@ async function initDatabase() {
       )
     `);
 
+    // MONITORED APIS (NO EMAIL)
     await pool.execute(`
       CREATE TABLE IF NOT EXISTS monitored_apis (
         id INT AUTO_INCREMENT PRIMARY KEY,
         url VARCHAR(2048) NOT NULL,
         url_hash CHAR(64) NOT NULL UNIQUE,
-        email VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // EMAILS
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS emails (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        username VARCHAR(255) NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -47,13 +63,36 @@ async function initDatabase() {
 
 export const databaseReady = initDatabase();
 
+/* ---------- types ---------- */
+
 export type Result = "Success" | "Failure" | "Network or DNS Error";
 
-export type MonitoredApi = {
+export type ApiRow = {
   id: number;
   url: string;
-  email: string;
 };
+
+export type EmailRow = {
+  id: number;
+  email: string;
+  username?: string;
+};
+
+/* ---------- LOGS API (READ ONLY) ---------- */
+
+export async function getLogs(limit = 100) {
+  const [rows] = await pool.execute(
+    `
+    SELECT id, url, result, status_code, status_text, checked_at
+    FROM logs
+    ORDER BY checked_at DESC
+    LIMIT ?
+    `,
+    [limit]
+  );
+
+  return rows;
+}
 
 export async function logResult(
   url: string,
@@ -70,21 +109,58 @@ export async function logResult(
   );
 }
 
-export async function addMonitoredApi(url: string, email: string) {
+/* ---------- APIS API ---------- */
+
+export async function addApi(url: string) {
   const urlHash = hashUrl(url);
 
   await pool.execute(
     `
-    INSERT INTO monitored_apis (url, url_hash, email)
-    VALUES (?, ?, ?)
+    INSERT INTO monitored_apis (url, url_hash)
+    VALUES (?, ?)
     `,
-    [url, urlHash, email]
+    [url, urlHash]
   );
 }
 
-export async function getMonitoredApis(): Promise<MonitoredApi[]> {
-  const [rows] = await pool.execute(
-    `SELECT id, url, email FROM monitored_apis`
+export async function deleteApi(id: number) {
+  await pool.execute(
+    `DELETE FROM monitored_apis WHERE id = ?`,
+    [id]
   );
-  return rows as MonitoredApi[];
+}
+
+export async function getApis(): Promise<ApiRow[]> {
+  const [rows] = await pool.execute(
+    `SELECT id, url FROM monitored_apis`
+  );
+
+  return rows as ApiRow[];
+}
+
+/* ---------- EMAILS API ---------- */
+
+export async function addEmail(email: string, username?: string) {
+  await pool.execute(
+    `
+    INSERT INTO emails (email, username)
+    VALUES (?, ?)
+    `,
+    [email, username ?? null]
+  );
+}
+
+export async function deleteEmail(id: number) {
+  await pool.execute(
+    `DELETE FROM emails WHERE id = ?`,
+    [id]
+  );
+}
+
+export async function getEmails(): Promise<EmailRow[]> {
+  const [rows] = await pool.execute(
+    `SELECT id, email, username FROM emails`
+  );
+
+  return rows as EmailRow[];
 }
