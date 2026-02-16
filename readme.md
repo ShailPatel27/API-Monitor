@@ -114,16 +114,20 @@ SMTP_PASS=your_app_password
 
 ### 1. Install dependencies
 
-```npm install
+```
+npm install
 cd api-monitor-ui
-npm install```
+npm install
+```
 
 
 ---
 
 ### 2. Build backend
 
-```npm run build```
+```
+npm run build
+```
 
 
 ---
@@ -132,14 +136,18 @@ npm install```
 
 Run once if you previously tested scheduling logic.
 
-```npm run clean```
+```
+npm run clean
+```
 
 
 ---
 
 ### 4. Start everything (recommended)
 
-```npm run start-all```
+```
+npm run start-all
+```
 
 
 This launches:
@@ -187,11 +195,13 @@ All scheduling is handled by **BullMQ repeatable jobs**, not `setInterval`.
 
 ## 🧪 Useful Scripts
 
+<pre>
 npm run build # Compile TypeScript
 npm run start-all # Start backend + workers + UI
 npm run clean # Remove repeatable BullMQ jobs
 npm run server # Start only Express API
 npm run workers # Start only workers
+</pre>
 
 
 ---
@@ -213,7 +223,7 @@ MIT
 
 ## 👤 Author
 
-Shail
+Shail Patel
 
 This project demonstrates:
 - Background job processing
