@@ -36,15 +36,21 @@
     "sequelize": "^6.37.7"
   },
   "scripts": {
-    "start": "node dist/server.js",
-    "dev": "nodemon --exec ts-node src/server.ts",
-    "retry-mails": "node -r ts-node/register src/workers/emailRetry.worker.ts",
     "build": "tsc",
-    "prestart": "npm run build",
-    "lint": "eslint --ext .ts src",
-    "schedule": "node dist/scheduler.js",
-    "monitor": "node dist/workers/monitor.worker.js",
+
+    "server": "node dist/server.js",
+    "scheduler": "node dist/scheduler.js",
+
+    "monitor-worker": "node dist/workers/monitor.worker.js",
     "email-worker": "node dist/workers/email.worker.js",
-    "workers": "node dist/workers/monitor.worker.js & node dist/workers/email.worker.js"
+
+    "workers": "concurrently \"npm run monitor-worker\" \"npm run email-worker\"",
+
+    "backend": "npm run scheduler && concurrently \"npm run server\" \"npm run workers\"",
+
+    "ui": "npm --prefix api-monitor-ui run dev",
+
+    "start-all": "concurrently \"npm run backend\" \"npm run ui\"",
+    "clean": "node dist/cleanup.ts"
   }
 }

@@ -22,10 +22,11 @@ function hashUrl(url: string): string {
 
 async function initDatabase() {
   try {
-    // LOGS (UNCHANGED)
+    // LOGS (ADD project)
     await pool.execute(`
       CREATE TABLE IF NOT EXISTS logs (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        project VARCHAR(255) NOT NULL,
         url VARCHAR(2048) NOT NULL,
         result ENUM('Success', 'Failure', 'Network or DNS Error') NOT NULL,
         status_code INT NULL,
@@ -34,17 +35,18 @@ async function initDatabase() {
       )
     `);
 
-    // MONITORED APIS (NO EMAIL)
+    // MONITORED APIS (ADD project)
     await pool.execute(`
       CREATE TABLE IF NOT EXISTS monitored_apis (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        project VARCHAR(255) NOT NULL,
         url VARCHAR(2048) NOT NULL,
         url_hash CHAR(64) NOT NULL UNIQUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
-    // EMAILS
+    // EMAILS (UNCHANGED)
     await pool.execute(`
       CREATE TABLE IF NOT EXISTS emails (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -69,6 +71,7 @@ export type Result = "Success" | "Failure" | "Network or DNS Error";
 
 export type ApiRow = {
   id: number;
+  project: string;
   url: string;
 };
 
@@ -78,23 +81,23 @@ export type EmailRow = {
   username?: string;
 };
 
-/* ---------- LOGS API (READ ONLY) ---------- */
+/* ---------- LOGS API ---------- */
 
 export async function getLogs(limit = 100) {
-  const [rows] = await pool.execute(
-    `
-    SELECT id, url, result, status_code, status_text, checked_at
+  const safeLimit = Math.min(Math.max(Number(limit) || 100, 1), 500);
+
+  const [rows] = await pool.query(`
+    SELECT id, project, url, result, status_code, status_text, checked_at
     FROM logs
     ORDER BY checked_at DESC
-    LIMIT ?
-    `,
-    [limit]
-  );
+    LIMIT ${safeLimit}
+  `);
 
   return rows;
 }
 
 export async function logResult(
+  project: string,
   url: string,
   result: Result,
   statusCode?: number,
@@ -102,37 +105,34 @@ export async function logResult(
 ) {
   await pool.execute(
     `
-    INSERT INTO logs (url, result, status_code, status_text)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO logs (project, url, result, status_code, status_text)
+    VALUES (?, ?, ?, ?, ?)
     `,
-    [url, result, statusCode ?? null, statusText ?? null]
+    [project, url, result, statusCode ?? null, statusText ?? null]
   );
 }
 
 /* ---------- APIS API ---------- */
 
-export async function addApi(url: string) {
-  const urlHash = hashUrl(url);
+export async function addApi(project: string, url: string) {
+  const urlHash = hashUrl(`${project}:${url}`);
 
   await pool.execute(
     `
-    INSERT INTO monitored_apis (url, url_hash)
-    VALUES (?, ?)
+    INSERT INTO monitored_apis (project, url, url_hash)
+    VALUES (?, ?, ?)
     `,
-    [url, urlHash]
+    [project, url, urlHash]
   );
 }
 
 export async function deleteApi(id: number) {
-  await pool.execute(
-    `DELETE FROM monitored_apis WHERE id = ?`,
-    [id]
-  );
+  await pool.execute(`DELETE FROM monitored_apis WHERE id = ?`, [id]);
 }
 
 export async function getApis(): Promise<ApiRow[]> {
   const [rows] = await pool.execute(
-    `SELECT id, url FROM monitored_apis`
+    `SELECT id, project, url FROM monitored_apis ORDER BY project, created_at DESC`
   );
 
   return rows as ApiRow[];
@@ -142,19 +142,13 @@ export async function getApis(): Promise<ApiRow[]> {
 
 export async function addEmail(email: string, username?: string) {
   await pool.execute(
-    `
-    INSERT INTO emails (email, username)
-    VALUES (?, ?)
-    `,
+    `INSERT INTO emails (email, username) VALUES (?, ?)`,
     [email, username ?? null]
   );
 }
 
 export async function deleteEmail(id: number) {
-  await pool.execute(
-    `DELETE FROM emails WHERE id = ?`,
-    [id]
-  );
+  await pool.execute(`DELETE FROM emails WHERE id = ?`, [id]);
 }
 
 export async function getEmails(): Promise<EmailRow[]> {

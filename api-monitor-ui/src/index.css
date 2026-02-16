@@ -1,0 +1,46 @@
+body {
+  font-family: system-ui, sans-serif;
+  padding: 20px;
+}
+
+h2 {
+  margin-bottom: 10px;
+}
+
+.form-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+input {
+  padding: 6px 8px;
+  min-width: 200px;
+}
+
+button {
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+button.danger {
+  background: #d9534f;
+  color: white;
+  border: none;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+thead {
+  background: #f3f3f3;
+}

@@ -1,10 +1,22 @@
-import app from "./app";
-import "./scheduler";
-import "./workers/monitor.worker";
-import "./workers/email.worker";
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
 
-const PORT = 3000;
+import apiRoutes from "./routes/apis";
+import emailRoutes from "./routes/emails";
+import logRoutes from "./routes/logs";
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+app.use("/apis", apiRoutes);
+app.use("/emails", emailRoutes);
+app.use("/logs", logRoutes);
+
+const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`API server running on http://localhost:${PORT}`);
 });

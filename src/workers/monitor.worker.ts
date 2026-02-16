@@ -15,6 +15,7 @@ import { connection } from "../queue/connection";
 console.log("Monitor worker started (runs every 1 minute)");
 
 function safeJobId(input: string) {
+  // BullMQ jobId must NOT contain :
   return crypto.createHash("sha1").update(input).digest("hex");
 }
 
@@ -32,7 +33,8 @@ new Worker(
     }
 
     for (const api of apis) {
-      const result = await checkApi(api.url);
+      // ✅ FIX: pass project + url
+      const result = await checkApi(api.project, api.url);
 
       if (result.status === "Success") continue;
 
@@ -42,6 +44,7 @@ new Worker(
           : "Network / DNS Error";
 
       const message = `
+        <strong>Project:</strong> ${api.project}<br>
         <strong>URL:</strong> ${api.url}<br>
         <strong>Status:</strong> ${statusMessage}
       `;
@@ -49,17 +52,24 @@ new Worker(
       for (const email of emails) {
         try {
           await sendMail(email.email, message);
-          console.log("Mail sent:", api.url, "→", email.email);
+          console.log(
+            "Mail sent:",
+            api.project,
+            api.url,
+            "→",
+            email.email
+          );
         } catch {
           await emailQueue.add(
             "send-email",
             {
+              project: api.project,
               url: api.url,
               email: email.email,
               message,
             },
             {
-              jobId: safeJobId(`${api.url}:${email.email}`),
+              jobId: safeJobId(`${api.project}-${api.url}-${email.email}`),
               attempts: 5,
               backoff: {
                 type: "fixed",
@@ -71,6 +81,7 @@ new Worker(
 
           console.log(
             "Mail failed, queued:",
+            api.project,
             api.url,
             "→",
             email.email
