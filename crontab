@@ -1,0 +1,5 @@
+# Run API monitor every 6 hours
+0 */6 * * * node /app/dist/workers/monitor.worker.js >> /app/monitor.log 2>&1
+
+# Retry failed emails every hour
+0 * * * * node /app/dist/workers/emailRetry.worker.js >> /app/retry.log 2>&1

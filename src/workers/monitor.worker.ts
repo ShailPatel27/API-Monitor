@@ -5,6 +5,7 @@ import { sendMail } from "../email";
 import { redis, connectRedis } from "../redis";
 import { EmailRetryPayload } from "../types/emailRetry";
 
+
 console.log("Script started");
 
 async function runMonitor() {

@@ -1,0 +1,27 @@
+services:
+  monitor-worker:
+    image: project-app
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - mysql
+    restart: unless-stopped
+
+  retry-worker:
+    image: project-app
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - mysql
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: api_monitor

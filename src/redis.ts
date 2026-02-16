@@ -1,8 +1,12 @@
 import { createClient } from "redis";
 
-export const redis = createClient({
-  url: "redis://localhost:6379"
-});
+const redisUrl = process.env.REDIS_URL;
+
+if (!redisUrl) {
+  throw new Error("REDIS_URL not set");
+}
+
+export const redis = createClient({ url: redisUrl });
 
 redis.on("error", (err) => {
   console.error("Redis error", err);

@@ -2,6 +2,8 @@ import "dotenv/config";
 import { redis, connectRedis } from "../redis";
 import { sendMail } from "../email";
 import { EmailRetryPayload } from "../types/emailRetry";
+import "dotenv/config";
+
 
 console.log("Email retry worker started");
 
