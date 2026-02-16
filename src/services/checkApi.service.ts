@@ -1,45 +1,51 @@
+// src/services/checkApi.service.ts
 import { logResult } from "../database";
-import { sendMail } from "../email";
+
+export type CheckResult =
+  | {
+      status: "Success";
+      code: number;
+      statusText: string;
+    }
+  | {
+      status: "Failure";
+      code: number;
+      statusText: string;
+    }
+  | {
+      status: "Network or DNS Error";
+    };
 
 export async function checkApi(
   url: string,
-  email?: string,
-  timeoutMs = 10000
-) {
+  timeoutMs = 10_000
+): Promise<CheckResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch(url, { signal: controller.signal });
 
-    if (response.status === 200) {
-      logResult(url, "Success", response.status, response.statusText);
-      return { status: "Success", code: response.status };
+    if (response.ok) {
+      await logResult(url, "Success", response.status, response.statusText);
+      return {
+        status: "Success",
+        code: response.status,
+        statusText: response.statusText,
+      };
     }
 
-    logResult(url, "Failure", response.status, response.statusText);
-
-    if (email) {
-      await sendMail(
-        `<strong>URL:</strong> ${url}<br>
-         <strong>Status:</strong> ${response.status} (${response.statusText})`
-      );
-    }
-
-    return { status: "Failure", code: response.status };
-
+    await logResult(url, "Failure", response.status, response.statusText);
+    return {
+      status: "Failure",
+      code: response.status,
+      statusText: response.statusText,
+    };
   } catch {
-    logResult(url, "Network or DNS Error");
-
-    if (email) {
-      await sendMail(
-        `<strong>URL:</strong> ${url}<br>
-         Network or DNS Error`
-      );
-    }
-
-    return { status: "Network Error" };
-
+    await logResult(url, "Network or DNS Error");
+    return {
+      status: "Network or DNS Error",
+    };
   } finally {
     clearTimeout(timeout);
   }

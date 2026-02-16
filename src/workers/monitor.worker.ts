@@ -1,46 +1,66 @@
+// src/workers/monitor.worker.ts
 import "dotenv/config";
 import { databaseReady, getMonitoredApis } from "../database";
 import { checkApi } from "../services/checkApi.service";
 import { sendMail } from "../email";
-import { redis, connectRedis } from "../redis";
-import { EmailRetryPayload } from "../types/emailRetry";
+import { emailQueue } from "../queue/email.queue";
 
-
-console.log("Script started");
+console.log("Monitor worker started");
 
 async function runMonitor() {
   await databaseReady;
-  await connectRedis();
 
   const apis = await getMonitoredApis();
 
   for (const api of apis) {
     const result = await checkApi(api.url);
 
-    if (result.status === "Success") continue;
+    if (result.status === "Success") {
+      continue;
+    }
 
-    const retryPayload: EmailRetryPayload = {
-      url: api.url,
-      email: api.email,
-      message: `
-        <strong>URL:</strong> ${api.url}<br>
-        <strong>Status:</strong> ${result.status}
-      `,
-      attempts: 1,
-      lastAttempt: new Date().toISOString()
-    };
+    let statusMessage: string;
+
+    if (result.status === "Failure") {
+      statusMessage = `${result.code} ${result.statusText}`;
+    } else {
+      statusMessage = "Network / DNS Error";
+    }
+
+    const message = `
+      <strong>URL:</strong> ${api.url}<br>
+      <strong>Status:</strong> ${statusMessage}
+    `;
 
     try {
-      await sendMail(retryPayload.message);
+      // ✅ FIRST attempt: send immediately
+      await sendMail(message);
       console.log("Mail sent:", api.url);
-    } catch {
+    } catch (err) {
+      // ❌ Only queue if sending FAILED
+      await emailQueue.add(
+        "send-email",
+        {
+          url: api.url,
+          email: api.email,
+          message,
+        },
+        {
+          jobId: api.url, // prevent duplicates
+          attempts: 5,
+          backoff: {
+            type: "exponential",
+            delay: 60_000, // 1 minute
+          },
+          removeOnComplete: true,
+        }
+      );
 
-      await redis.rPush("email_retry", JSON.stringify(retryPayload));
       console.log("Mail failed, queued:", api.url);
     }
   }
 
-  console.log("Script Executed");
+  console.log("Monitor run finished");
 }
 
 runMonitor();
