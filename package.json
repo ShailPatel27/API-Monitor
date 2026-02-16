@@ -39,18 +39,18 @@
     "build": "tsc",
 
     "server": "node dist/server.js",
-    "scheduler": "node dist/scheduler.js",
+    "schedule": "node dist/scheduler.js",
 
     "monitor-worker": "node dist/workers/monitor.worker.js",
     "email-worker": "node dist/workers/email.worker.js",
 
     "workers": "concurrently \"npm run monitor-worker\" \"npm run email-worker\"",
 
-    "backend": "npm run scheduler && concurrently \"npm run server\" \"npm run workers\"",
+    "backend": "npm run schedule && concurrently \"npm run server\" \"npm run workers\"",
 
     "ui": "npm --prefix api-monitor-ui run dev",
 
     "start-all": "concurrently \"npm run backend\" \"npm run ui\"",
-    "clean": "node dist/cleanup.ts"
+    "clean": "node dist/cleanup.js"
   }
 }

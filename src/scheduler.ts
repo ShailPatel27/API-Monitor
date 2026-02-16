@@ -10,7 +10,7 @@ import { monitorQueue } from "./queue/monitor.queue";
       {
         jobId: "monitor-repeat",
         repeat: {
-          every: 60 * 1000 // ⏱ 1 minute (testing)
+          every: 6 * 60 * 60 * 1000 // ⏱ 6 hours
         },
         removeOnComplete: true
       }

@@ -12,7 +12,7 @@ import { sendMail } from "../email";
 import { emailQueue } from "../queue/email.queue";
 import { connection } from "../queue/connection";
 
-console.log("Monitor worker started (runs every 1 minute)");
+console.log("Monitor worker started (runs every 1 hour)");
 
 function safeJobId(input: string) {
   // BullMQ jobId must NOT contain :
@@ -70,10 +70,10 @@ new Worker(
             },
             {
               jobId: safeJobId(`${api.project}-${api.url}-${email.email}`),
-              attempts: 5,
+              attempts: 168,
               backoff: {
                 type: "fixed",
-                delay: 10_000, // ⏱ retry every 10s (testing)
+                delay: 60 * 60 * 1000, // ⏱ retry every 1 hour
               },
               removeOnComplete: true,
             }
