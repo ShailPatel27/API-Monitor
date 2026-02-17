@@ -136,25 +136,12 @@ export default function Logs() {
         <button ref={filterButtonRef} onClick={() => setShowFilters((v) => !v)}>
           Filters
         </button>
-        
       </div>
 
       {/* FILTER PANEL (OVERLAY) */}
       {showFilters && (
-        <div
-          ref={filterRef}
-          style={{
-            position: "absolute",
-            top: 70,
-            left: 0,
-            zIndex: 10,
-            background: "white",
-            border: "1px solid #ddd",
-            padding: 12,
-            width: 360,
-            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-          }}
-        >
+        <div ref={filterRef} className="filter-panel">
+          
           <strong>Projects</strong>
           {allProjects.map((p) => (
             <label

@@ -254,3 +254,66 @@ tbody tr:hover {
 h2 {
   margin: 16px 0 12px;
 }
+
+/* =========================================================
+   FILTER PANEL (DARK/LIGHT SAFE)
+========================================================= */
+
+.filter-panel {
+  position: absolute;
+  top: 70px;
+  left: 0;
+  z-index: 20;
+
+  width: 360px;
+  padding: 14px;
+
+  background: var(--bg);
+  color: var(--text);
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.18),
+    0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.filter-panel strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+}
+
+.filter-panel label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.filter-panel hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 10px 0;
+}
+
+.filter-panel button {
+  margin-top: 6px;
+}
+
+.filter-panel {
+  animation: fadeIn 120ms ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
