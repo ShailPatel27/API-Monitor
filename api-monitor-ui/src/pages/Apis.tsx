@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { getApis, addApi, deleteApi } from "../api";
+import MonitorStatus from "../components/MonitorStatus";
+
 
 type ApiRow = {
   id: number;
@@ -44,6 +46,7 @@ export default function Apis() {
 
   return (
     <div>
+      <MonitorStatus />
       <h2>Monitored APIs</h2>
 
       <div className="form-row">
@@ -60,12 +63,15 @@ export default function Apis() {
         <button onClick={add}>Add</button>
       </div>
 
+      <br></br>
+      
       <input
         placeholder="Search by project or URL"
         value={search}
         onChange={e => setSearch(e.target.value)}
         style={{ marginBottom: 10, width: 300 }}
       />
+      
 
       <table>
         <thead>

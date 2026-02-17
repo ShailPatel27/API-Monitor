@@ -1,11 +1,191 @@
-/* index.css */
-body {
-  font-family: system-ui, sans-serif;
-  padding: 20px;
+/* =========================================================
+   RESET / BASE
+========================================================= */
+
+* {
+  box-sizing: border-box;
 }
 
-h2 {
-  margin-bottom: 10px;
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+/* =========================================================
+   THEME VARIABLES (SINGLE SOURCE OF TRUTH)
+========================================================= */
+
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f6f7fb;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --accent: #4a6cf7;
+  --accent-bg: #eef2ff;
+  --danger: #e5533d;
+}
+
+body[data-theme="dark"] {
+  --bg: #0b0e14;
+  --bg-soft: #111827;
+  --text: #e5e7eb;
+  --text-muted: #9ca3af;
+  --border: #1f2933;
+  --accent: #7aa2ff;
+  --accent-bg: #1b233a;
+  --danger: #ef5a5a;
+  background: linear-gradient(180deg, #0b0e14, #06080d);
+}
+
+/* =========================================================
+   NAVBAR (STICKY + CLEAN TABS)
+========================================================= */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.01)
+  );
+  backdrop-filter: blur(8px);
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 25%;
+}
+
+.navbar-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+/* -------- NAV LINKS (FIXED SPACING) -------- */
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+
+  padding: 4px;
+  background: var(--bg-soft);
+  border-radius: 10px;
+
+  /* ❌ no gap here */
+}
+
+.nav-btn {
+  padding: 6px 100px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+
+  cursor: pointer;
+  white-space: nowrap;
+
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.nav-btn:hover {
+  color: var(--text);
+}
+
+.nav-btn.active {
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* -------- THEME BUTTON -------- */
+
+.theme-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.theme-btn:hover {
+  background: var(--accent-bg);
+}
+
+/* =========================================================
+   RESPONSIVE NAVBAR (NO STRETCHING)
+========================================================= */
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .navbar-left {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .navbar-links {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .theme-btn {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-title {
+    font-size: 1.2rem;
+  }
+
+  .nav-btn {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+  }
+}
+
+/* =========================================================
+   FORM CONTROLS
+========================================================= */
+
+input {
+  background: var(--bg-soft);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+input::placeholder {
+  color: var(--text-muted);
 }
 
 .form-row {
@@ -14,34 +194,63 @@ h2 {
   margin-bottom: 15px;
 }
 
-input {
-  padding: 6px 8px;
-  min-width: 200px;
-}
+/* =========================================================
+   BUTTONS
+========================================================= */
 
 button {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
   padding: 6px 12px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
+button:hover {
+  background: var(--bg-soft);
+}
+
 button.danger {
-  background: #d9534f;
-  color: white;
+  background: var(--danger);
+  color: #fff;
   border: none;
 }
+
+/* =========================================================
+   TABLE
+========================================================= */
 
 table {
   width: 100%;
   border-collapse: collapse;
+  background: transparent;
+}
+
+thead {
+  background: var(--bg-soft);
+}
+
+th {
+  font-weight: 600;
+  color: var(--text);
 }
 
 th,
 td {
-  border: 1px solid #ddd;
-  padding: 8px;
+  border: 1px solid var(--border);
+  padding: 10px;
   text-align: left;
 }
 
-thead {
-  background: #f3f3f3;
+tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* =========================================================
+   HEADINGS
+========================================================= */
+
+h2 {
+  margin: 16px 0 12px;
 }

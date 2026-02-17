@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getLogs } from "../api";
+import MonitorStatus from "../components/MonitorStatus";
 
 type LogRow = {
   id: number;
@@ -121,6 +122,7 @@ export default function Logs() {
 
   return (
     <div style={{ position: "relative" }}>
+      <MonitorStatus />
       <h2>Execution Logs</h2>
 
       {/* SEARCH + FILTER BUTTON */}
@@ -129,11 +131,12 @@ export default function Logs() {
           placeholder="Search logs"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ minWidth: 300 }}
+          style={{ marginBottom: 10, minWidth: 300 }}
         />
         <button ref={filterButtonRef} onClick={() => setShowFilters((v) => !v)}>
           Filters
         </button>
+        
       </div>
 
       {/* FILTER PANEL (OVERLAY) */}

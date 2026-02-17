@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getEmails, addEmail, deleteEmail } from "../api";
+import MonitorStatus from "../components/MonitorStatus";
 
 type EmailRow = {
   id: number;
@@ -44,6 +45,7 @@ export default function Emails() {
 
   return (
     <div>
+      <MonitorStatus />
       <h2>Email Recipients</h2>
 
       <div className="form-row">
@@ -60,10 +62,13 @@ export default function Emails() {
         <button onClick={add}>Add</button>
       </div>
 
+      <br></br>
+
       <input
         placeholder="Search by email or username"
         value={search}
         onChange={e => setSearch(e.target.value)}
+
         style={{ marginBottom: 10, width: 300 }}
       />
 
