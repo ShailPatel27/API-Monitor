@@ -37,16 +37,16 @@
   },
   "scripts": {
     "build": "tsc",
+    "test": "concurrently \"npm run start-all \" \"npm run build\"",
 
     "server": "node dist/server.js",
-    "schedule": "node dist/scheduler.js",
 
     "monitor-worker": "node dist/workers/monitor.worker.js",
     "email-worker": "node dist/workers/email.worker.js",
 
     "workers": "concurrently \"npm run monitor-worker\" \"npm run email-worker\"",
 
-    "backend": "npm run schedule && concurrently \"npm run server\" \"npm run workers\"",
+    "backend": "concurrently \"npm run server\" \"npm run workers\"",
 
     "ui": "npm --prefix api-monitor-ui run dev",
 

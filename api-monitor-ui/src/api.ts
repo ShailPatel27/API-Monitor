@@ -40,3 +40,18 @@ export async function getLogs() {
   const res = await http.get("/logs");
   return res.data;
 }
+
+/* ---------- MONITOR ---------- */
+
+/**
+ * Runs monitor immediately and resets schedule
+ */
+
+export async function getNextMonitorRun() {
+  const res = await http.get("/monitor/next");
+  return res.data as { nextRunAt: number | null };
+}
+
+export async function runMonitorNow() {
+  await http.post("/monitor/run");
+}

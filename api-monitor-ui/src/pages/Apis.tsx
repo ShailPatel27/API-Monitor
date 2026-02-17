@@ -11,6 +11,7 @@ export default function Apis() {
   const [rows, setRows] = useState<ApiRow[]>([]);
   const [project, setProject] = useState("");
   const [url, setUrl] = useState("");
+  const [search, setSearch] = useState("");
 
   async function load() {
     const data = await getApis();
@@ -18,9 +19,8 @@ export default function Apis() {
   }
 
   useEffect(() => {
-    (async () => {
-      await load();
-    })();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load();
   }, []);
 
   async function add() {
@@ -36,6 +36,11 @@ export default function Apis() {
     await deleteApi(id);
     load();
   }
+
+  const filteredRows = rows.filter(r =>
+    r.project.toLowerCase().includes(search.toLowerCase()) ||
+    r.url.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div>
@@ -55,6 +60,13 @@ export default function Apis() {
         <button onClick={add}>Add</button>
       </div>
 
+      <input
+        placeholder="Search by project or URL"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        style={{ marginBottom: 10, width: 300 }}
+      />
+
       <table>
         <thead>
           <tr>
@@ -64,7 +76,7 @@ export default function Apis() {
           </tr>
         </thead>
         <tbody>
-          {rows.map(r => (
+          {filteredRows.map(r => (
             <tr key={r.id}>
               <td>{r.project}</td>
               <td>{r.url}</td>
@@ -78,6 +90,14 @@ export default function Apis() {
               </td>
             </tr>
           ))}
+
+          {filteredRows.length === 0 && (
+            <tr>
+              <td colSpan={3} style={{ textAlign: "center" }}>
+                No matching APIs
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>

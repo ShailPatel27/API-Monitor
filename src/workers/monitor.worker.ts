@@ -12,6 +12,14 @@ import { sendMail } from "../email";
 import { emailQueue } from "../queue/email.queue";
 import { connection } from "../queue/connection";
 
+const EMAIL_RETRY_DELAY =
+  Number(process.env.EMAIL_RETRY_DELAY_MS) ||
+  60 * 60 * 1000;
+
+const EMAIL_RETRY_ATTEMPTS =
+  Number(process.env.EMAIL_RETRY_ATTEMPTS) ||
+  168;
+
 console.log("Monitor worker started (runs every 1 hour)");
 
 function safeJobId(input: string) {
@@ -70,10 +78,10 @@ new Worker(
             },
             {
               jobId: safeJobId(`${api.project}-${api.url}-${email.email}`),
-              attempts: 168,
+              attempts: EMAIL_RETRY_ATTEMPTS,
               backoff: {
                 type: "fixed",
-                delay: 60 * 60 * 1000, // ⏱ retry every 1 hour
+                delay: EMAIL_RETRY_DELAY
               },
               removeOnComplete: true,
             }

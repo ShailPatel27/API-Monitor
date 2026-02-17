@@ -11,6 +11,7 @@ export default function Emails() {
   const [rows, setRows] = useState<EmailRow[]>([]);
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
+  const [search, setSearch] = useState("");
 
   async function load() {
     const data = await getEmails();
@@ -18,9 +19,8 @@ export default function Emails() {
   }
 
   useEffect(() => {
-    (async () => {
-      await load();
-    })();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load();
   }, []);
 
   async function add() {
@@ -36,6 +36,11 @@ export default function Emails() {
     await deleteEmail(id);
     load();
   }
+
+  const filteredRows = rows.filter(r =>
+    r.email.toLowerCase().includes(search.toLowerCase()) ||
+    (r.username ?? "").toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div>
@@ -55,6 +60,13 @@ export default function Emails() {
         <button onClick={add}>Add</button>
       </div>
 
+      <input
+        placeholder="Search by email or username"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        style={{ marginBottom: 10, width: 300 }}
+      />
+
       <table>
         <thead>
           <tr>
@@ -64,7 +76,7 @@ export default function Emails() {
           </tr>
         </thead>
         <tbody>
-          {rows.map(r => (
+          {filteredRows.map(r => (
             <tr key={r.id}>
               <td>{r.email}</td>
               <td>{r.username ?? "-"}</td>
@@ -78,10 +90,11 @@ export default function Emails() {
               </td>
             </tr>
           ))}
-          {rows.length === 0 && (
+
+          {filteredRows.length === 0 && (
             <tr>
               <td colSpan={3} style={{ textAlign: "center" }}>
-                No emails configured
+                No matching emails
               </td>
             </tr>
           )}

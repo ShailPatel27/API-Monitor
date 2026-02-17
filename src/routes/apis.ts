@@ -1,6 +1,7 @@
 // src/routes/apis.ts
 import { Router } from "express";
 import { addApi, deleteApi, getApis } from "../database";
+import { rescheduleMonitor } from "../queue/rescheduleMonitor";
 
 const router = Router();
 
@@ -15,6 +16,10 @@ router.get("/", async (_, res) => {
 /**
  * POST /apis
  * body: { project: string, url: string }
+ *
+ * When a new API is added:
+ * - Insert into DB
+ * - Reset monitor scheduler so 6h starts from NOW
  */
 router.post("/", async (req, res) => {
   const { project, url } = req.body;
@@ -26,6 +31,10 @@ router.post("/", async (req, res) => {
   }
 
   await addApi(project, url);
+
+  // 🔁 RESET MONITOR TIMER
+  await rescheduleMonitor();
+
   res.sendStatus(201);
 });
 
