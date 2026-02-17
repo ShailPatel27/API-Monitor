@@ -317,3 +317,31 @@ h2 {
     transform: translateY(0);
   }
 }
+
+/* =========================================================
+   LOGS PAGINATION
+========================================================= */
+
+.pagination-controls {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Optional: consistent sortable header */
+.sortable-th {
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.95rem;
+}
+
+.viewMoreBtn{
+  font-size: 1rem;
+  width: 75px;
+}
+
+.viewMoreContainer{
+    /* display: flex; */
+    justify-content: center;
+}

@@ -311,10 +311,10 @@ export default function Logs() {
       </table>
 
       {visible < sorted.length && (
-        <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-          <button onClick={() => setVisible((v) => v + 10)}>+10</button>
-          <button onClick={() => setVisible((v) => v + 100)}>+100</button>
-          <button onClick={() => setVisible(sorted.length)}>All</button>
+        <div className="viewMoreContainer" style={{ marginTop: 10, display: "flex", gap: 8 }}>
+          <button className="viewMoreBtn" onClick={() => setVisible((v) => v + 10)}>+10</button>
+          <button className="viewMoreBtn" onClick={() => setVisible((v) => v + 100)}>+100</button>
+          <button className="viewMoreBtn" onClick={() => setVisible(sorted.length)}>All</button>
         </div>
       )}
     </div>

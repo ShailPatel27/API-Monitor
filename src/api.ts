@@ -1,3 +1,4 @@
+// api.ts
 const API_BASE = "http://localhost:3001";
 
 async function json<T>(url: string, options?: RequestInit): Promise<T> {

@@ -83,18 +83,16 @@ export type EmailRow = {
 
 /* ---------- LOGS API ---------- */
 
-export async function getLogs(limit = 100) {
-  const safeLimit = Math.min(Math.max(Number(limit) || 100, 1), 500);
-
+export async function getLogs() {
   const [rows] = await pool.query(`
     SELECT id, project, url, result, status_code, status_text, checked_at
     FROM logs
     ORDER BY checked_at DESC
-    LIMIT ${safeLimit}
   `);
 
   return rows;
 }
+
 
 export async function logResult(
   project: string,
